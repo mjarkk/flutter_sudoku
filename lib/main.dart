@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'sudoku.dart';
 import 'playground.dart';
+import 'controls.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,18 +38,29 @@ class _Screen extends StatefulWidget {
 }
 
 class _ScreenState extends State<_Screen> {
-  Sudoku sudoku = new Sudoku();
-  Cell? selectedCell;
+  Sudoku _sudoku = new Sudoku();
+  Cell? _selectedCell;
   SudokuField selectedField = SudokuField();
 
   updateSelectedField() {
-    selectedField = sudoku.getField(selectedCell ?? Cell.empty());
+    selectedField = _sudoku.getField(_selectedCell ?? Cell.empty());
+  }
+
+  setSelectCell(Cell cell) {
+    setState(() {
+      if (_selectedCell?.equal(cell) == true) {
+        _selectedCell = null;
+      } else {
+        _selectedCell = cell;
+        updateSelectedField();
+      }
+    });
   }
 
   onNumberSelect(int number) {
     setState(() {
-      sudoku.toggleFieldPosibility(
-        selectedCell ?? Cell.empty(),
+      _sudoku.toggleFieldPosibility(
+        _selectedCell ?? Cell.empty(),
         number,
       );
       updateSelectedField();
@@ -61,75 +73,15 @@ class _ScreenState extends State<_Screen> {
       child: Column(
         children: [
           Playground(
-            sudoku: sudoku,
-            setSelectCell: (Cell cell) {
-              setState(() {
-                selectedCell = cell;
-                updateSelectedField();
-              });
-            },
-            selectedCell: selectedCell,
+            sudoku: _sudoku,
+            setSelectCell: setSelectCell,
+            selectedCell: _selectedCell,
           ),
-          selectedCell != null
-              ? Controls(
-                  onNumberSelection: onNumberSelect,
-                  field: selectedField,
-                )
-              : Container(),
-        ],
-      ),
-    );
-  }
-}
-
-class Controls extends StatelessWidget {
-  final Function(int) onNumberSelection;
-  final SudokuField field;
-
-  Controls({required this.onNumberSelection, required this.field});
-
-  @override
-  Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10).copyWith(top: 0),
-            child: Text(
-              'Select posiblities',
-              style: theme.textTheme.caption,
-            ),
-          ),
-          Row(
-            children: List.generate(9, (int j) {
-              bool active = field.posibilities[j + 1] ?? false;
-
-              return Expanded(
-                child: Container(
-                  padding: const EdgeInsets.only(left: 4, right: 4),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary:
-                          active ? theme.colorScheme.primary : theme.cardColor,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Text(
-                        (j + 1).toString(),
-                        style: active
-                            ? theme.textTheme.button?.copyWith(fontSize: 20)
-                            : theme.textTheme.bodyText1?.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    onPressed: () => onNumberSelection(j + 1),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
+          Controls(
+            onNumberSelection: onNumberSelect,
+            field: selectedField,
+            cell: _selectedCell,
+          )
         ],
       ),
     );

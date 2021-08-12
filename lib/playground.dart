@@ -41,36 +41,56 @@ class Playground extends StatelessWidget {
                     bigRow * 3 + smallRow,
                   );
 
-                  SudokuField field = sudoku.getField(cell);
-
-                  return Card(
-                    key: Key(cell.toString()),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => field.valueSet
-                          ? Center(
-                              child: Text(
-                                '${field.value}',
-                                style: TextStyle(
-                                    fontSize: constraints.maxWidth * 0.75),
-                              ),
-                            )
-                          : ElevatedButton(
-                              child: Container(),
-                              style: ElevatedButton.styleFrom(
-                                primary: cell.equal(selectedCell)
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryVariant
-                                    : Theme.of(context).cardColor,
-                              ),
-                              onPressed: () => setSelectCell(cell),
-                            ),
-                    ),
+                  return GridCell(
+                    selected: cell.equal(selectedCell),
+                    cell: cell,
+                    field: sudoku.getField(cell),
+                    setSelectCell: setSelectCell,
                   );
                 }).toList(),
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class GridCell extends StatelessWidget {
+  final bool selected;
+  final SudokuField field;
+  final Cell cell;
+  final Function(Cell) setSelectCell;
+
+  const GridCell({
+    Key? key,
+    required this.selected,
+    required this.field,
+    required this.cell,
+    required this.setSelectCell,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      key: Key(cell.toString()),
+      child: LayoutBuilder(
+        builder: (context, constraints) => field.valueSet
+            ? Center(
+                child: Text(
+                  '${field.value}',
+                  style: TextStyle(fontSize: constraints.maxWidth * 0.75),
+                ),
+              )
+            : ElevatedButton(
+                child: Container(),
+                style: ElevatedButton.styleFrom(
+                  primary: selected
+                      ? Theme.of(context).colorScheme.primaryVariant
+                      : Theme.of(context).cardColor,
+                ),
+                onPressed: () => setSelectCell(cell),
+              ),
       ),
     );
   }
