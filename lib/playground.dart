@@ -42,6 +42,7 @@ class Playground extends StatelessWidget {
                   );
 
                   return GridCell(
+                    key: Key(cell.toString()),
                     selected: cell.equal(selectedCell),
                     cell: cell,
                     field: sudoku.getField(cell),
@@ -73,25 +74,56 @@ class GridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      key: Key(cell.toString()),
-      child: LayoutBuilder(
-        builder: (context, constraints) => field.valueSet
-            ? Center(
-                child: Text(
-                  '${field.value}',
-                  style: TextStyle(fontSize: constraints.maxWidth * 0.75),
+      child: LayoutBuilder(builder: (context, constraints) {
+        if (field.valueSet)
+          return Center(
+            child: Text(
+              '${field.value}',
+              style: TextStyle(fontSize: constraints.maxWidth * .75),
+            ),
+          );
+
+        return ElevatedButton(
+          child: Container(
+            child: Column(
+              children: List.generate(
+                3,
+                (i) => Row(
+                  children: List.generate(
+                    3,
+                    (j) {
+                      int value = i * 3 + j + 1;
+                      return Expanded(
+                        child: Center(
+                          child: field.posibilities[value] == true
+                              ? Text(
+                                  value.toString(),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        ?.color,
+                                    fontSize: constraints.maxWidth * .4,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : Container(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              )
-            : ElevatedButton(
-                child: Container(),
-                style: ElevatedButton.styleFrom(
-                  primary: selected
-                      ? Theme.of(context).colorScheme.primaryVariant
-                      : Theme.of(context).cardColor,
-                ),
-                onPressed: () => setSelectCell(cell),
-              ),
-      ),
+              ).toList(),
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            primary: selected
+                ? Theme.of(context).colorScheme.primaryVariant
+                : Theme.of(context).cardColor,
+          ),
+          onPressed: () => setSelectCell(cell),
+        );
+      }),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'sudoku.dart';
-import 'playground.dart';
 
 class Controls extends StatelessWidget {
   final Function(int) onNumberSelection;
@@ -62,10 +61,12 @@ class _ControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool darkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     ThemeData theme = Theme.of(context);
 
     return Expanded(
-      key: key,
       child: Container(
         padding: const EdgeInsets.only(left: 4, right: 4),
         child: TweenAnimationBuilder(
@@ -75,8 +76,12 @@ class _ControlButton extends StatelessWidget {
                   tween: ColorTween(
                     begin: null,
                     end: active && onNumberSelection != null
-                        ? theme.buttonColor
-                        : theme.textTheme.bodyText1?.color,
+                        ? darkMode
+                            ? Colors.black
+                            : Colors.white
+                        : darkMode
+                            ? Colors.white
+                            : Colors.black,
                   ),
                   duration: _duration,
                   builder: (_, Color? color, __) {
