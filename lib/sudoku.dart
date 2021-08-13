@@ -36,11 +36,11 @@ class Sudoku {
   }
 
   setFieldValue(Cell cell, int value) {
-    if (!cell.isEmpty()) fields[cell.y][cell.x].setValue(value);
+    if (!cell.placeholder) fields[cell.y][cell.x].setValue(value);
   }
 
   toggleFieldPosibility(Cell cell, int value) {
-    if (!cell.isEmpty()) fields[cell.y][cell.x].togglePosibility(value);
+    if (!cell.placeholder) fields[cell.y][cell.x].togglePosibility(value);
   }
 }
 
@@ -49,20 +49,7 @@ class SudokuField {
   int? value;
   Map<int, bool> posibilities = {};
 
-  SudokuField() {
-    posibilities = {
-      1: true,
-      2: true,
-      3: true,
-      4: true,
-      5: true,
-      6: true,
-      7: true,
-      8: true,
-      9: true,
-    };
-  }
-
+  SudokuField();
   SudokuField.withValue(int value) {
     setValue(value);
   }
@@ -84,11 +71,15 @@ class SudokuField {
 class Cell {
   late final int x;
   late final int y;
+  late final bool placeholder;
 
-  Cell(this.x, this.y);
-  Cell.empty() {
+  Cell(this.x, this.y) {
+    placeholder = false;
+  }
+  Cell.placeholder() {
     x = 0;
     y = 0;
+    placeholder = true;
   }
 
   bool equal(Cell? other) {
@@ -97,10 +88,6 @@ class Cell {
     }
 
     return x == other.x && y == other.y;
-  }
-
-  bool isEmpty() {
-    return x == 0 || y == 0;
   }
 
   @override

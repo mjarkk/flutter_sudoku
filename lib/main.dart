@@ -43,7 +43,7 @@ class _ScreenState extends State<_Screen> {
   SudokuField selectedField = SudokuField();
 
   updateSelectedField() {
-    selectedField = _sudoku.getField(_selectedCell ?? Cell.empty());
+    selectedField = _sudoku.getField(_selectedCell ?? Cell.placeholder());
   }
 
   setSelectCell(Cell cell) {
@@ -60,7 +60,7 @@ class _ScreenState extends State<_Screen> {
   onNumberSelect(int number) {
     setState(() {
       _sudoku.toggleFieldPosibility(
-        _selectedCell ?? Cell.empty(),
+        _selectedCell ?? Cell.placeholder(),
         number,
       );
       updateSelectedField();
