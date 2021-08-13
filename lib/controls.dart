@@ -3,11 +3,13 @@ import 'sudoku.dart';
 
 class Controls extends StatelessWidget {
   final Function(int) onNumberSelection;
+  final Function(int) onNumberConfirm;
   final SudokuField field;
   final Cell? cell;
 
   Controls({
     required this.onNumberSelection,
+    required this.onNumberConfirm,
     required this.field,
     required this.cell,
   });
@@ -28,15 +30,19 @@ class Controls extends StatelessWidget {
             ),
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(9, (int j) {
-              bool active = field.posibilities[j + 1] ?? false;
+              int value = j + 1;
+              bool active = field.posibilities[value] ?? false;
               Key key = Key(j.toString());
 
-              return _ControlButton(
+              return _ControlValue(
                 active: active,
                 key: key,
-                value: j + 1,
-                onNumberSelection: cell != null ? onNumberSelection : null,
+                value: value,
+                onNumberSelection:
+                    cell != null ? () => onNumberSelection(value) : null,
+                onNumberConfirm: () => onNumberConfirm(value),
               );
             }).toList(),
           ),
@@ -46,17 +52,18 @@ class Controls extends StatelessWidget {
   }
 }
 
-class _ControlButton extends StatelessWidget {
+class _ControlValue extends StatelessWidget {
   final bool active;
   final int value;
-  final Function(int)? onNumberSelection;
-  static const _duration = Duration(milliseconds: 100);
+  final Function()? onNumberSelection;
+  final Function() onNumberConfirm;
 
-  const _ControlButton({
+  const _ControlValue({
     Key? key,
     required this.active,
     required this.value,
     required this.onNumberSelection,
+    required this.onNumberConfirm,
   }) : super(key: key);
 
   @override
@@ -69,13 +76,19 @@ class _ControlButton extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.only(left: 4, right: 4),
-        child: TweenAnimationBuilder(
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: TweenAnimationBuilder(
-                  tween: ColorTween(
-                    begin: null,
-                    end: active && onNumberSelection != null
+        child: Column(
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: active ? theme.colorScheme.primary : theme.cardColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  value.toString(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: active && onNumberSelection != null
                         ? darkMode
                             ? Colors.black
                             : Colors.white
@@ -83,33 +96,22 @@ class _ControlButton extends StatelessWidget {
                             ? Colors.white
                             : Colors.black,
                   ),
-                  duration: _duration,
-                  builder: (_, Color? color, __) {
-                    return Text(
-                      value.toString(),
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: color,
-                      ),
-                    );
-                  }),
-            ),
-            tween: ColorTween(
-              begin: active ? theme.colorScheme.primary : theme.cardColor,
-              end: active ? theme.colorScheme.primary : theme.cardColor,
-            ),
-            duration: _duration,
-            builder: (BuildContext context, Color? color, Widget? child) {
-              return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: color,
                 ),
-                child: child,
-                onPressed: onNumberSelection != null
-                    ? () => onNumberSelection!(value)
-                    : null,
-              );
-            }),
+              ),
+              onPressed:
+                  onNumberSelection != null ? () => onNumberSelection!() : null,
+            ),
+            (active && onNumberSelection != null)
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: ElevatedButton(
+                      onPressed: onNumberConfirm,
+                      child: Icon(Icons.check),
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
       ),
     );
   }

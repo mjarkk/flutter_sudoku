@@ -75,7 +75,7 @@ class GridCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: LayoutBuilder(builder: (context, constraints) {
-        if (field.valueSet)
+        if (field.value != null)
           return Center(
             child: Text(
               '${field.value}',

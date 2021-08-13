@@ -67,6 +67,33 @@ class _ScreenState extends State<_Screen> {
     });
   }
 
+  onNumberConfirm(int number) {
+    Cell cell = _selectedCell ?? Cell.placeholder();
+    if (!_sudoku.canSetFieldValue(cell, number)) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Invalid value'),
+          content: Text(
+            number.toString() + ' cannot be used as value for this cell',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _sudoku.setFieldValue(cell, number);
+      _selectedCell = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -79,6 +106,7 @@ class _ScreenState extends State<_Screen> {
           ),
           Controls(
             onNumberSelection: onNumberSelect,
+            onNumberConfirm: onNumberConfirm,
             field: selectedField,
             cell: _selectedCell,
           )
