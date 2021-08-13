@@ -83,47 +83,67 @@ class GridCell extends StatelessWidget {
             ),
           );
 
+        double posibilityFontSize =
+            constraints.maxWidth < 50 ? constraints.maxWidth * .3 : 15;
+
         return ElevatedButton(
           child: Container(
+            constraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
             child: Column(
-              children: List.generate(
-                3,
-                (i) => Row(
-                  children: List.generate(
-                    3,
-                    (j) {
-                      int value = i * 3 + j + 1;
-                      return Expanded(
-                        child: Center(
-                          child: field.posibilities[value] == true
-                              ? Text(
-                                  value.toString(),
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .caption
-                                        ?.color,
-                                    fontSize: constraints.maxWidth * .4,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              : Container(),
-                        ),
-                      );
-                    },
+              children: List.generate(3, (i) {
+                int valueOffset = i * 3 + 1;
+                return Expanded(
+                  child: Row(
+                    children: List.generate(
+                      3,
+                      (j) {
+                        int value = valueOffset + j;
+                        return _Possibility(
+                          value:
+                              field.posibilities[value] == true ? value : null,
+                          fontSize: posibilityFontSize,
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ).toList(),
+                );
+              }).toList(),
             ),
           ),
           style: ElevatedButton.styleFrom(
             primary: selected
                 ? Theme.of(context).colorScheme.primaryVariant
                 : Theme.of(context).cardColor,
+            padding: EdgeInsets.zero,
           ),
           onPressed: () => setSelectCell(cell),
         );
       }),
+    );
+  }
+}
+
+class _Possibility extends StatelessWidget {
+  final int? value;
+  final double fontSize;
+  const _Possibility({Key? key, this.value, required this.fontSize})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Center(
+        child: value != null
+            ? Text(
+                value.toString(),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.caption?.color,
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            : Container(),
+      ),
     );
   }
 }

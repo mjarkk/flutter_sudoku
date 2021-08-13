@@ -49,7 +49,19 @@ class SudokuField {
   int? value;
   Map<int, bool> posibilities = {};
 
-  SudokuField();
+  SudokuField() {
+    posibilities = {
+      1: true,
+      2: true,
+      3: true,
+      4: true,
+      5: true,
+      6: true,
+      7: true,
+      8: true,
+      9: true,
+    };
+  }
 
   SudokuField.withValue(int value) {
     setValue(value);
