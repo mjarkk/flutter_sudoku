@@ -50,87 +50,63 @@ class Sudoku {
   }
 
   setFieldValue(Cell cell, int value) {
-    if (!cell.placeholder) fields[cell.y][cell.x].setValue(value);
+    if (cell.placeholder) return;
+
+    var mapFn = (_CellAndField v) {
+      fields[v.cell.y][v.cell.x].setPosibility(value, false);
+    };
+
+    getArea(cell).forEach(mapFn);
+    getRow(cell.y).forEach(mapFn);
+    getColumn(cell.x).forEach(mapFn);
+
+    fields[cell.y][cell.x].setValue(value);
   }
 
   bool canSetFieldValue(Cell cell, int value) {
-    // Check cell
     if (cell.placeholder) return false;
 
-    // Check sudoku area
-    if (getAreaValues(cell).contains(value)) return false;
+    var testFn =
+        (_CellAndField v) => v.field.value != null && v.field.value == value;
 
+    // Check sudoku area
+    if (getArea(cell).any(testFn)) return false;
     // Check row and column
-    if (getColumnValues(cell.x).contains(value)) return false;
-    if (getRowValues(cell.y).contains(value)) return false;
+    if (getRow(cell.y).any(testFn)) return false;
+    if (getColumn(cell.x).any(testFn)) return false;
 
     return true;
   }
 
-  Set<SudokuField> getColumn(int x) {
-    Set<SudokuField> res = Set();
-    for (List<SudokuField> row in fields) {
-      res.add(row[x]);
+  Set<_CellAndField> getColumn(int x) {
+    Set<_CellAndField> res = Set();
+    for (int y = 0; y < 9; y++) {
+      res.add(_CellAndField(Cell(x, y), fields[y][x]));
     }
     return res;
   }
 
-  Set<int> getColumnValues(int x) {
-    Set<int> res = Set();
-    for (List<SudokuField> row in fields) {
-      SudokuField field = row[x];
-      if (field.value != null) res.add(field.value!);
+  Set<_CellAndField> getRow(int y) {
+    Set<_CellAndField> res = Set();
+    for (int x = 0; x < 9; x++) {
+      res.add(_CellAndField(Cell(x, y), fields[y][x]));
     }
     return res;
   }
 
-  Set<SudokuField> getRow(int y) {
-    Set<SudokuField> res = Set();
-    for (SudokuField field in fields[y]) {
-      res.add(field);
-    }
-    return res;
-  }
-
-  Set<int> getRowValues(int y) {
-    Set<int> res = Set();
-    for (SudokuField field in fields[y]) {
-      if (field.value != null) res.add(field.value!);
-    }
-    return res;
-  }
-
-  Set<SudokuField> getArea(Cell cell) {
-    Set<SudokuField> res = Set();
+  Set<_CellAndField> getArea(Cell cell) {
+    Set<_CellAndField> res = Set();
     if (cell.placeholder) return res;
 
     int baseX = cell.x - (cell.x % 3);
     int baseY = cell.y - (cell.y % 3);
 
     for (int yOffset = 0; yOffset < 3; yOffset++) {
-      List<SudokuField> row = fields[baseY + yOffset];
+      int y = baseY + yOffset;
+      List<SudokuField> row = fields[y];
       for (int xOffset = 0; xOffset < 3; xOffset++) {
-        res.add(row[baseX + xOffset]);
-      }
-    }
-
-    return res;
-  }
-
-  Set<int> getAreaValues(Cell cell) {
-    Set<int> res = Set();
-    if (cell.placeholder) return res;
-
-    int baseX = cell.x - (cell.x % 3);
-    int baseY = cell.y - (cell.y % 3);
-
-    for (int yOffset = 0; yOffset < 3; yOffset++) {
-      List<SudokuField> row = fields[baseY + yOffset];
-      for (int xOffset = 0; xOffset < 3; xOffset++) {
-        SudokuField field = row[baseX + xOffset];
-        if (field.value != null) {
-          res.add(field.value!);
-        }
+        int x = baseX + xOffset;
+        res.add(_CellAndField(Cell(x, y), row[x]));
       }
     }
 
@@ -142,8 +118,17 @@ class Sudoku {
   }
 }
 
+class _CellAndField {
+  final Cell cell;
+  final SudokuField field;
+
+  _CellAndField(this.cell, this.field);
+}
+
 class SudokuField {
   int? value;
+
+  // map with 1..9
   Map<int, bool> posibilities = {};
 
   SudokuField();
@@ -161,6 +146,10 @@ class SudokuField {
   togglePosibility(int value) {
     bool? prevValue = posibilities[value];
     posibilities[value] = prevValue == null ? true : !prevValue;
+  }
+
+  setPosibility(int value, bool to) {
+    posibilities[value] = to;
   }
 }
 

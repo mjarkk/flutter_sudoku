@@ -96,22 +96,48 @@ class _ScreenState extends State<_Screen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          Playground(
-            sudoku: _sudoku,
-            setSelectCell: setSelectCell,
-            selectedCell: _selectedCell,
-          ),
-          Controls(
-            onNumberSelection: onNumberSelect,
-            onNumberConfirm: onNumberConfirm,
-            field: selectedField,
-            cell: _selectedCell,
-          )
-        ],
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool horizontalLayout =
+          constraints.maxHeight - constraints.maxWidth - 100 < 0;
+
+      Playground playground = Playground(
+        sudoku: _sudoku,
+        setSelectCell: setSelectCell,
+        selectedCell: _selectedCell,
+      );
+
+      return Center(
+        child: horizontalLayout
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      child: playground,
+                    ),
+                  ),
+                  Controls(
+                    onNumberSelection: onNumberSelect,
+                    onNumberConfirm: onNumberConfirm,
+                    field: selectedField,
+                    cell: _selectedCell,
+                    layout: ControlsLayout.verticalLine,
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  playground,
+                  Controls(
+                    onNumberSelection: onNumberSelect,
+                    onNumberConfirm: onNumberConfirm,
+                    field: selectedField,
+                    cell: _selectedCell,
+                    layout: ControlsLayout.horizontalLine,
+                  ),
+                ],
+              ),
+      );
+    });
   }
 }

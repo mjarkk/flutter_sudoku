@@ -73,53 +73,59 @@ class GridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: LayoutBuilder(builder: (context, constraints) {
-        if (field.value != null)
-          return Center(
+    BorderRadius cellBorderRadius = BorderRadius.circular(6);
+
+    return LayoutBuilder(builder: (context, constraints) {
+      if (field.value != null)
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: cellBorderRadius,
+            color: Theme.of(context).cardColor,
+          ),
+          child: Center(
             child: Text(
               '${field.value}',
               style: TextStyle(fontSize: constraints.maxWidth * .75),
             ),
-          );
-
-        double posibilityFontSize =
-            constraints.maxWidth < 50 ? constraints.maxWidth * .3 : 15;
-
-        return ElevatedButton(
-          child: Container(
-            constraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
-            child: Column(
-              children: List.generate(3, (i) {
-                int valueOffset = i * 3 + 1;
-                return Expanded(
-                  child: Row(
-                    children: List.generate(
-                      3,
-                      (j) {
-                        int value = valueOffset + j;
-                        return _Possibility(
-                          value:
-                              field.posibilities[value] == true ? value : null,
-                          fontSize: posibilityFontSize,
-                        );
-                      },
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
           ),
-          style: ElevatedButton.styleFrom(
-            primary: selected
-                ? Theme.of(context).colorScheme.primaryVariant
-                : Theme.of(context).cardColor,
-            padding: EdgeInsets.zero,
-          ),
-          onPressed: () => setSelectCell(cell),
         );
-      }),
-    );
+
+      double posibilityFontSize =
+          constraints.maxWidth < 50 ? constraints.maxWidth * .3 : 15;
+
+      return ElevatedButton(
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
+          child: Column(
+            children: List.generate(3, (i) {
+              int valueOffset = i * 3 + 1;
+              return Expanded(
+                child: Row(
+                  children: List.generate(
+                    3,
+                    (j) {
+                      int value = valueOffset + j;
+                      return _Possibility(
+                        value: field.posibilities[value] == true ? value : null,
+                        fontSize: posibilityFontSize,
+                      );
+                    },
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          primary: selected
+              ? Theme.of(context).colorScheme.primaryVariant
+              : Theme.of(context).cardColor,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: cellBorderRadius),
+        ),
+        onPressed: () => setSelectCell(cell),
+      );
+    });
   }
 }
 
