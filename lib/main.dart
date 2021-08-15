@@ -4,10 +4,10 @@ import 'playground.dart';
 import 'controls.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(SudokuApp());
 }
 
-class MyApp extends StatelessWidget {
+class SudokuApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.light().copyWith(
           primary: Colors.teal[400]!,
           primaryVariant: Colors.teal[200]!,
+          background: Colors.grey[200]!,
         ),
       ),
       darkTheme: ThemeData(
@@ -25,9 +26,17 @@ class MyApp extends StatelessWidget {
           primaryVariant: Colors.teal[700]!,
         ),
       ),
-      home: Scaffold(
-        body: _Screen(),
-      ),
+      home: SudokuAppScaffold(),
+    );
+  }
+}
+
+class SudokuAppScaffold extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: _Screen(),
     );
   }
 }

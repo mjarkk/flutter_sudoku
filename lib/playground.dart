@@ -117,6 +117,7 @@ class GridCell extends StatelessWidget {
           ),
         ),
         style: ElevatedButton.styleFrom(
+          shadowColor: Colors.transparent,
           primary: selected
               ? Theme.of(context).colorScheme.primaryVariant
               : Theme.of(context).cardColor,
