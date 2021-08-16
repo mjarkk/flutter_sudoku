@@ -7,12 +7,16 @@ enum ControlsLayout {
   block,
 }
 
+const double ControlsMinHeight = 70;
+const double ControlsMinWidth = 130;
+
 class Controls extends StatelessWidget {
   final Function(int) onNumberSelection;
   final Function(int) onNumberConfirm;
   final SudokuField field;
   final Cell? cell;
   final ControlsLayout layout;
+  final bool small;
 
   const Controls({
     required this.onNumberSelection,
@@ -20,74 +24,81 @@ class Controls extends StatelessWidget {
     required this.field,
     required this.cell,
     required this.layout,
+    required this.small,
   });
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: layout == ControlsLayout.verticalLine
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10).copyWith(top: 0),
-            child: Text(
-              'Select posiblities',
-              style: theme.textTheme.caption,
+    return LayoutBuilder(builder: (context, constraints) {
+      return Padding(
+        padding: EdgeInsets.all(small ? 6 : 12),
+        child: Column(
+          crossAxisAlignment: layout == ControlsLayout.verticalLine
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10).copyWith(top: 0),
+              child: Text(
+                'Select posiblities',
+                style: theme.textTheme.caption,
+              ),
             ),
-          ),
-          layout == ControlsLayout.verticalLine
-              ? ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 150,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(9, (int j) {
-                      int value = j + 1;
-                      bool active = field.posibilities[value] ?? false;
-                      Key key = Key(j.toString());
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: ControlsMinWidth,
+                minHeight: ControlsMinHeight,
+              ),
+              child: layout == ControlsLayout.verticalLine
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(9, (int j) {
+                        int value = j + 1;
+                        bool active = field.posibilities[value] ?? false;
+                        Key key = Key(j.toString());
 
-                      return _ControlValue(
-                        active: active,
-                        key: key,
-                        value: value,
-                        onNumberSelection: cell != null
-                            ? () => onNumberSelection(value)
-                            : null,
-                        onNumberConfirm: () => onNumberConfirm(value),
-                        layout: layout,
-                      );
-                    }).toList(),
-                  ))
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(9, (int j) {
-                    int value = j + 1;
-                    bool active = field.posibilities[value] ?? false;
-                    Key key = Key(j.toString());
+                        return _ControlValue(
+                          active: active,
+                          key: key,
+                          value: value,
+                          onNumberSelection: cell != null
+                              ? () => onNumberSelection(value)
+                              : null,
+                          onNumberConfirm: () => onNumberConfirm(value),
+                          layout: layout,
+                          small: small,
+                        );
+                      }).toList(),
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(9, (int j) {
+                        int value = j + 1;
+                        bool active = field.posibilities[value] ?? false;
+                        Key key = Key(j.toString());
 
-                    return Expanded(
-                      key: key,
-                      child: _ControlValue(
-                        active: active,
-                        value: value,
-                        onNumberSelection: cell != null
-                            ? () => onNumberSelection(value)
-                            : null,
-                        onNumberConfirm: () => onNumberConfirm(value),
-                        layout: layout,
-                      ),
-                    );
-                  }).toList(),
-                ),
-        ],
-      ),
-    );
+                        return Expanded(
+                          key: key,
+                          child: _ControlValue(
+                            active: active,
+                            value: value,
+                            onNumberSelection: cell != null
+                                ? () => onNumberSelection(value)
+                                : null,
+                            onNumberConfirm: () => onNumberConfirm(value),
+                            layout: layout,
+                            small: small,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -97,14 +108,16 @@ class _ControlValue extends StatelessWidget {
   final Function()? onNumberSelection;
   final Function() onNumberConfirm;
   final ControlsLayout layout;
+  final bool small;
 
-  _ControlValue({
+  const _ControlValue({
     Key? key,
     required this.active,
     required this.value,
     required this.onNumberSelection,
     required this.onNumberConfirm,
     required this.layout,
+    required this.small,
   }) : super(key: key);
 
   @override
@@ -119,20 +132,17 @@ class _ControlValue extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           primary: active ? theme.colorScheme.primary : theme.cardColor,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Text(
-            value.toString(),
-            style: TextStyle(
-              fontSize: 20,
-              color: active && onNumberSelection != null
-                  ? darkMode
-                      ? Colors.black
-                      : Colors.white
-                  : darkMode
-                      ? Colors.white
-                      : Colors.black,
-            ),
+        child: Text(
+          value.toString(),
+          style: TextStyle(
+            fontSize: small ? 15 : 20,
+            color: active && onNumberSelection != null
+                ? darkMode
+                    ? Colors.black
+                    : Colors.white
+                : darkMode
+                    ? Colors.white
+                    : Colors.black,
           ),
         ),
         onPressed:
@@ -145,7 +155,10 @@ class _ControlValue extends StatelessWidget {
                   : EdgeInsets.only(left: 10),
               child: ElevatedButton(
                 onPressed: onNumberConfirm,
-                child: Icon(Icons.check),
+                child: Icon(
+                  Icons.check,
+                  size: small ? 15 : 20,
+                ),
               ),
             )
           : Container(),
@@ -153,15 +166,11 @@ class _ControlValue extends StatelessWidget {
 
     return Container(
       padding: layout == ControlsLayout.verticalLine
-          ? EdgeInsets.only(top: 4, bottom: 4)
-          : EdgeInsets.only(left: 4, right: 4),
+          ? EdgeInsets.symmetric(vertical: small ? 2 : 4)
+          : EdgeInsets.symmetric(horizontal: small ? 2 : 4),
       child: layout == ControlsLayout.horizontalLine
-          ? Column(
-              children: buttons,
-            )
-          : Row(
-              children: buttons,
-            ),
+          ? Column(children: buttons)
+          : Row(children: buttons),
     );
   }
 }

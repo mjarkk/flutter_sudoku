@@ -14,10 +14,10 @@ class SudokuApp extends StatelessWidget {
       title: 'Sudoku',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        backgroundColor: Colors.grey[200]!,
         colorScheme: const ColorScheme.light().copyWith(
           primary: Colors.teal[400]!,
           primaryVariant: Colors.teal[200]!,
-          background: Colors.grey[200]!,
         ),
       ),
       darkTheme: ThemeData(
@@ -35,7 +35,7 @@ class SudokuAppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).backgroundColor,
       body: _Screen(),
     );
   }
@@ -100,14 +100,29 @@ class _ScreenState extends State<_Screen> {
     setState(() {
       _sudoku.setFieldValue(cell, number);
       _selectedCell = null;
+
+      if (_sudoku.allFieldsFilledIn()) {
+        // TODO show congrats screen
+        print("yay great success");
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 300 || constraints.maxHeight < 400)
+        return ScreenToSmall();
+
       bool horizontalLayout =
-          constraints.maxHeight - constraints.maxWidth - 100 < 0;
+          constraints.maxHeight - constraints.maxWidth + 50 < 0;
+      bool needSpaceForControls = (horizontalLayout
+              ? (constraints.maxWidth - constraints.maxHeight)
+              : (constraints.maxHeight - constraints.maxWidth)) <
+          (horizontalLayout ? ControlsMinWidth : ControlsMinHeight) + 50;
+
+      bool smallControls =
+          constraints.maxWidth < 400 || constraints.maxHeight < 500;
 
       Playground playground = Playground(
         sudoku: _sudoku,
@@ -120,33 +135,70 @@ class _ScreenState extends State<_Screen> {
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Container(
-                      child: playground,
-                    ),
-                  ),
+                  needSpaceForControls
+                      ? Expanded(
+                          child: Center(
+                            child: Container(
+                              child: playground,
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Container(
+                            child: playground,
+                          ),
+                        ),
                   Controls(
                     onNumberSelection: onNumberSelect,
                     onNumberConfirm: onNumberConfirm,
                     field: selectedField,
                     cell: _selectedCell,
                     layout: ControlsLayout.verticalLine,
+                    small: smallControls,
                   ),
                 ],
               )
             : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  playground,
+                  needSpaceForControls
+                      ? Expanded(child: playground)
+                      : playground,
                   Controls(
                     onNumberSelection: onNumberSelect,
                     onNumberConfirm: onNumberConfirm,
                     field: selectedField,
                     cell: _selectedCell,
                     layout: ControlsLayout.horizontalLine,
+                    small: smallControls,
                   ),
                 ],
               ),
       );
     });
+  }
+}
+
+class ScreenToSmall extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Yo, i'm not a smartwatch",
+              textAlign: TextAlign.center,
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Icon(Icons.watch),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

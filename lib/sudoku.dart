@@ -1,5 +1,6 @@
 class Sudoku {
   List<List<SudokuField>> fields = [];
+  int _filledInFields = 0;
 
   Sudoku() {
     List<String> contents = [
@@ -38,11 +39,18 @@ class Sudoku {
           fields.add([]);
         }
 
-        fields[fields.length - 1].add(number == ' '
+        bool isEmptyField = number == ' ';
+        fields[fields.length - 1].add(isEmptyField
             ? new SudokuField()
             : new SudokuField.withValue(int.parse(number)));
+
+        if (!isEmptyField) _filledInFields++;
       }
     }
+  }
+
+  bool allFieldsFilledIn() {
+    return _filledInFields == 81;
   }
 
   SudokuField getField(Cell cell) {
@@ -60,6 +68,7 @@ class Sudoku {
     getRow(cell.y).forEach(mapFn);
     getColumn(cell.x).forEach(mapFn);
 
+    _filledInFields++;
     fields[cell.y][cell.x].setValue(value);
   }
 
