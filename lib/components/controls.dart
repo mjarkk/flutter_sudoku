@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'sudoku.dart';
+import '../logic/sudoku.dart';
 
 enum ControlsLayout {
   horizontalLine,
   verticalLine,
-  block,
 }
 
 const double ControlsMinHeight = 70;
@@ -31,37 +30,60 @@ class Controls extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Padding(
-        padding: EdgeInsets.all(small ? 6 : 12),
-        child: Column(
-          crossAxisAlignment: layout == ControlsLayout.verticalLine
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10).copyWith(top: 0),
-              child: Text(
-                'Select posiblities',
-                style: theme.textTheme.caption,
-              ),
+    return Padding(
+      padding: EdgeInsets.all(small ? 6 : 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: layout == ControlsLayout.verticalLine
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10).copyWith(top: 0),
+            child: Text(
+              'Select posiblities',
+              style: theme.textTheme.caption,
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: ControlsMinWidth,
-                minHeight: ControlsMinHeight,
-              ),
-              child: layout == ControlsLayout.verticalLine
-                  ? Column(
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: ControlsMinWidth,
+              minHeight: ControlsMinHeight,
+            ),
+            child: layout == ControlsLayout.verticalLine
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(9, (int j) {
+                      int value = j + 1;
+                      bool active = field.posibilities[value] ?? false;
+                      Key key = Key(j.toString());
+
+                      return _ControlValue(
+                        active: active,
+                        key: key,
+                        value: value,
+                        onNumberSelection: cell != null
+                            ? () => onNumberSelection(value)
+                            : null,
+                        onNumberConfirm: () => onNumberConfirm(value),
+                        layout: layout,
+                        small: small,
+                      );
+                    }).toList(),
+                  )
+                : LayoutBuilder(builder: (context, constraints) {
+                    bool expandControls = constraints.maxWidth < 700;
+                    return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(9, (int j) {
                         int value = j + 1;
                         bool active = field.posibilities[value] ?? false;
                         Key key = Key(j.toString());
 
-                        return _ControlValue(
-                          active: active,
+                        Widget res = _ControlValue(
                           key: key,
+                          active: active,
                           value: value,
                           onNumberSelection: cell != null
                               ? () => onNumberSelection(value)
@@ -70,35 +92,17 @@ class Controls extends StatelessWidget {
                           layout: layout,
                           small: small,
                         );
-                      }).toList(),
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(9, (int j) {
-                        int value = j + 1;
-                        bool active = field.posibilities[value] ?? false;
-                        Key key = Key(j.toString());
 
-                        return Expanded(
-                          key: key,
-                          child: _ControlValue(
-                            active: active,
-                            value: value,
-                            onNumberSelection: cell != null
-                                ? () => onNumberSelection(value)
-                                : null,
-                            onNumberConfirm: () => onNumberConfirm(value),
-                            layout: layout,
-                            small: small,
-                          ),
-                        );
+                        return expandControls
+                            ? Expanded(key: key, child: res)
+                            : res;
                       }).toList(),
-                    ),
-            ),
-          ],
-        ),
-      );
-    });
+                    );
+                  }),
+          ),
+        ],
+      ),
+    );
   }
 }
 

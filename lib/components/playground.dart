@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sudoku.dart';
+import '../logic/sudoku.dart';
 
 class Playground extends StatelessWidget {
   final Sudoku sudoku;
