@@ -21,6 +21,7 @@ class SudokuApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData(
+        backgroundColor: Colors.grey[900]!,
         colorScheme: const ColorScheme.dark().copyWith(
           primary: Colors.teal[400]!,
           primaryVariant: Colors.teal[700]!,
